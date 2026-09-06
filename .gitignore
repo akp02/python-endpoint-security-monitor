@@ -1,0 +1,18 @@
+# Python virtual environment
+.venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# PyCharm / JetBrains files
+.idea/
+
+# Generated runtime data
+reports/
+events.jsonl
+baseline.json
+
+# OS-generated files
+.DS_Store
+Thumbs.db

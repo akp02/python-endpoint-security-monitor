@@ -1,0 +1,32 @@
+{
+  "scan_interval_seconds": 900,
+  "cpu_warning_percent": 85,
+  "memory_warning_percent": 85,
+  "disk_warning_percent": 85,
+  "ports_to_review": {
+    "21": {
+      "service": "FTP",
+      "severity": "MEDIUM"
+    },
+    "22": {
+      "service": "SSH",
+      "severity": "LOW"
+    },
+    "23": {
+      "service": "Telnet",
+      "severity": "HIGH"
+    },
+    "139": {
+      "service": "NetBIOS",
+      "severity": "MEDIUM"
+    },
+    "445": {
+      "service": "SMB",
+      "severity": "MEDIUM"
+    },
+    "3389": {
+      "service": "RDP",
+      "severity": "HIGH"
+    }
+  }
+}
