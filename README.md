@@ -17,6 +17,7 @@ The V2 application can also be packaged as a standalone Windows executable using
 
 
 
+
 ## Features
 
 ### V1 — Core Monitoring Engine
@@ -48,6 +49,7 @@ The V2 application can also be packaged as a standalone Windows executable using
 - Reusable monitoring data collection
 - Windows executable packaging using PyInstaller
 
+<img width="3744" height="1404" alt="vs-dashboard-overview" src="https://github.com/user-attachments/assets/bdee47e7-3323-428c-afd4-ad438e917120" />
 
 
 ## Project Structure
@@ -247,11 +249,17 @@ In V2, reports can be generated directly from the dashboard using the **Generate
 
 The Endpoint Security Monitor performs rule-based security checks to identify potentially suspicious system activity.
 
+
+
+
 ### Process Monitoring
 - Enumerates running processes and their process IDs (PIDs).
 - Evaluates processes using predefined suspicious-process rules.
 - Displays process information in the V2 dashboard.
 - Provides a searchable process table for investigation.
+
+- <img width="3750" height="1797" alt="v2-running-processes" src="https://github.com/user-attachments/assets/56b58e06-a9ee-423a-9939-ae1379f99ce8" />
+
 
 ### Network Port Monitoring
 - Identifies active listening TCP ports.
@@ -260,10 +268,17 @@ The Endpoint Security Monitor performs rule-based security checks to identify po
 - Compares current listening ports against a previously saved baseline.
 - Identifies newly opened and removed listening ports.
 
+<img width="3747" height="2133" alt="v2-listening-ports" src="https://github.com/user-attachments/assets/00762b19-8721-4642-b344-9a79c2154524" />
+
+
+
 ### Security Findings
 - Displays suspicious-process summaries and port security findings.
 - Records security events using structured JSONL logs.
 - Includes security inspection results in generated TXT and JSON reports.
+
+  <img width="3774" height="1704" alt="v2-security-findings" src="https://github.com/user-attachments/assets/763cb33e-ed9a-4399-91a3-3a953170d5e7" />
+
 
 ### Detection Limitations
 Security findings are heuristic indicators that may require further investigation. A flagged process or port does not necessarily indicate malicious activity.
