@@ -19,22 +19,19 @@ from security_checks import (
     check_listening_ports,
     analyze_listening_ports,
 
-)
+)     
 
 from datetime import datetime
 bytes_per_gb = 1024 ** 3
 
-print("=== SYSTEM HEALTH REPORT ===")
-
 # Computer name
 hostname = socket.gethostname()
-print(f"Hostname: {hostname}")
+
 
 # Operating System
 os_name = platform.system()
 os_version = platform.release()
-print(f"Operating System: {os_name}")
-print(f"OS Version: {os_version}")
+
 
 # CPU
 def check_cpu():
@@ -65,7 +62,7 @@ def check_memory():
     warning = None
 
     if memory.percent > 85:
-        print("WARNING: High RAM usage")
+        warning = "High Ram Usage"
 
 
     return {
@@ -129,166 +126,175 @@ def check_uptime():
         "system_uptime": uptime,
     }
 
+def main():
+    print("=== SYSTEM HEALTH REPORT ===")
+    print(f"Hostname: {hostname}")
+    print(f"Operating System: {os_name}")
+    print(f"OS Version: {os_version}")
 
-cpu_data = check_cpu()
-print(f"CPU: {cpu_data['cpu_name']}")
-print(f"CPU Usage: {cpu_data['cpu_usage_percent']:.1f}%")
-print(f"Physical Cores: {cpu_data['physical_cores']}")
-print(f"Logical Cores: {cpu_data['logical_cores']}")
 
-if cpu_data["warning"]:
-    print(cpu_data["warning"])
+    cpu_data = check_cpu()
+    print(f"CPU: {cpu_data['cpu_name']}")
+    print(f"CPU Usage: {cpu_data['cpu_usage_percent']:.1f}%")
+    print(f"Physical Cores: {cpu_data['physical_cores']}")
+    print(f"Logical Cores: {cpu_data['logical_cores']}")
 
-memory_data = check_memory()
-print(f"Total Ram: {memory_data['total_ram_gb']:.2f} GB")
-print(f"Used Ram: {memory_data['used_ram_gb']:.2f} GB")
-print(f"Available Ram: {memory_data['available_ram_gb']:.2f} GB")
-print(f"RAM Usage: {memory_data['ram_usage_percent']}%")
+    if cpu_data["warning"]:
+        print(cpu_data["warning"])
 
-if memory_data["warning"]:
-    print(memory_data["warning"])
+    memory_data = check_memory()
+    print(f"Total Ram: {memory_data['total_ram_gb']:.2f} GB")
+    print(f"Used Ram: {memory_data['used_ram_gb']:.2f} GB")
+    print(f"Available Ram: {memory_data['available_ram_gb']:.2f} GB")
+    print(f"RAM Usage: {memory_data['ram_usage_percent']}%")
 
-disk_data = check_disk()
-print(f"Total Disk Space: {disk_data['total_disk_gb']:.2f} GB")
-print(f"Used Disk Space: {disk_data['used_disk_gb']:.2f} GB")
-print(f"Available Disk Space: {disk_data['available_disk_gb']:.2f} GB")
-print(f"Disk Usage: {disk_data['disk_percent']:.1f}%")
+    if memory_data["warning"]:
+        print(memory_data["warning"])
 
-network_data = check_network()
-print(f"IPv4 Address: {network_data['ip_address']}")
-print(f"Internet Connectivity: {network_data['connectivity']}")
+    disk_data = check_disk()
+    print(f"Total Disk Space: {disk_data['total_disk_gb']:.2f} GB")
+    print(f"Used Disk Space: {disk_data['used_disk_gb']:.2f} GB")
+    print(f"Available Disk Space: {disk_data['available_disk_gb']:.2f} GB")
+    print(f"Disk Usage: {disk_data['disk_percent']:.1f}%")
 
-uptime_data = check_uptime()
-print(f"Last Boot Time: {uptime_data['last_boot_time']}")
-print(f"System Uptime: {uptime_data['system_uptime']}")
+    network_data = check_network()
+    print(f"IPv4 Address: {network_data['ip_address']}")
+    print(f"Internet Connectivity: {network_data['connectivity']}")
 
-print("============================")
+    uptime_data = check_uptime()
+    print(f"Last Boot Time: {uptime_data['last_boot_time']}")
+    print(f"System Uptime: {uptime_data['system_uptime']}")
 
-process_data = check_processes()
-suspicious_processes = find_suspicious_processes(process_data)
+    print("============================")
 
-listening_ports = check_listening_ports()
-port_findings = analyze_listening_ports(listening_ports)
 
-baseline_data = load_baseline()
+    process_data = check_processes()
+    suspicious_processes = find_suspicious_processes(process_data)
 
-if baseline_data is None:
-    print("\nNo baseline found. Creating initial baseline...")
+    listening_ports = check_listening_ports()
+    port_findings = analyze_listening_ports(listening_ports)
 
-    save_baseline({
-        "listening_ports": listening_ports
-    })
+    baseline_data = load_baseline()
 
-    port_changes = {
-        "new_ports": [],
-        "removed_ports": []
-    }
+    if baseline_data is None:
+        print("\nNo baseline found. Creating initial baseline...")
 
-else:
-    port_changes = compare_listening_ports(
-        baseline_data["listening_ports"],
-        listening_ports
-    )
+        save_baseline({
+            "listening_ports": listening_ports
+        })
 
-    print("\n=== BASELINE CHANGES ===")
-    print(f"New Listening Ports: {len(port_changes['new_ports'])}")
-    print(f"Removed Listening Ports: {len(port_changes['removed_ports'])}")
+        port_changes = {
+            "new_ports": [],
+            "removed_ports": []
+        }
+
+    else:
+        port_changes = compare_listening_ports(
+            baseline_data["listening_ports"],
+            listening_ports
+        )
+
+        print("\n=== BASELINE CHANGES ===")
+        print(f"New Listening Ports: {len(port_changes['new_ports'])}")
+        print(f"Removed Listening Ports: {len(port_changes['removed_ports'])}")
+
+        for port in port_changes["new_ports"]:
+            print(f"[NEW] IP: {port[0]} | Port: {port[1]} | Process: {port[2]}")
+
+        for port in port_changes["removed_ports"]:
+            print(f"[REMOVED] IP: {port[0]} | Port: {port[1]} | Process: {port[2]}")
 
     for port in port_changes["new_ports"]:
-        print(f"[NEW] IP: {port[0]} | Port: {port[1]} | Process: {port[2]}")
+        message = (
+            f"New listening port detected: "
+            f"{port[0]}:{port[1]} owned by {port[2]}"
+        )
+
+        print(f"[ALERT] {message}")
+
+        log_event(
+            event_type="NEW_LISTENING_PORT",
+            severity="MEDIUM",
+            message=message,
+            details={
+                "ip": port[0],
+                "port": port[1],
+                "process_name": port[2]
+            }
+        )
+
 
     for port in port_changes["removed_ports"]:
-        print(f"[REMOVED] IP: {port[0]} | Port: {port[1]} | Process: {port[2]}")
-
-for port in port_changes["new_ports"]:
-    message = (
-        f"New listening port detected: "
-        f"{port[0]}:{port[1]} owned by {port[2]}"
-    )
-
-    print(f"[ALERT] {message}")
-
-    log_event(
-        event_type="NEW_LISTENING_PORT",
-        severity="MEDIUM",
-        message=message,
-        details={
-            "ip": port[0],
-            "port": port[1],
-            "process_name": port[2]
-        }
-    )
-
-
-for port in port_changes["removed_ports"]:
-    message = (
-        f"Listening port removed: "
-        f"{port[0]}:{port[1]} owned by {port[2]}"
-    )
-
-    print(f"[INFO] {message}")
-
-    log_event(
-        event_type="REMOVED_LISTENING_PORT",
-        severity="INFO",
-        message=message,
-        details={
-            "ip": port[0],
-            "port": port[1],
-            "process_name": port[2]
-        }
-    )
-
-    for finding in port_findings:
-        log_event(
-            event_type="PORT_REQUIRES_REVIEW",
-            severity=finding["severity"],
-            message=(
-                f"{finding['service']} detected on port "
-                f"{finding['port']}"
-            ),
-            details=finding
+        message = (
+            f"Listening port removed: "
+            f"{port[0]}:{port[1]} owned by {port[2]}"
         )
 
-    for process in suspicious_processes:
+        print(f"[INFO] {message}")
+
         log_event(
-            event_type="SUSPICIOUS_PROCESS",
-            severity="HIGH",
-            message=f"Suspicious process detected: {process['name']}",
-            details=process
+            event_type="REMOVED_LISTENING_PORT",
+            severity="INFO",
+            message=message,
+            details={
+                "ip": port[0],
+                "port": port[1],
+                "process_name": port[2]
+            }
         )
 
-print("\n=== SECURITY CHECKS ===")
+        for finding in port_findings:
+            log_event(
+                event_type="PORT_REQUIRES_REVIEW",
+                severity=finding["severity"],
+                message=(
+                    f"{finding['service']} detected on port "
+                    f"{finding['port']}"
+                ),
+                details=finding
+            )
 
-print(f"Running Processes: {len(process_data)}")
-print(f"Suspicious Processes: {len(suspicious_processes)}")
-print(f"Listening Ports: {len(listening_ports)}")
-print(f"Ports Requiring Review: {len(port_findings)}")
+        for process in suspicious_processes:
+            log_event(
+                event_type="SUSPICIOUS_PROCESS",
+                severity="HIGH",
+                message=f"Suspicious process detected: {process['name']}",
+                details=process
+            )
+
+    print("\n=== SECURITY CHECKS ===")
+
+    print(f"Running Processes: {len(process_data)}")
+    print(f"Suspicious Processes: {len(suspicious_processes)}")
+    print(f"Listening Ports: {len(listening_ports)}")
+    print(f"Ports Requiring Review: {len(port_findings)}")
 
 
-generate_text_report(
-    cpu_data,
-    memory_data,
-    disk_data,
-    network_data,
-    uptime_data,
-    process_data,
-    suspicious_processes,
-    listening_ports,
-    port_findings,
-    port_changes
-)
+    generate_text_report(
+        cpu_data,
+        memory_data,
+        disk_data,
+        network_data,
+        uptime_data,
+        process_data,
+        suspicious_processes,
+        listening_ports,
+        port_findings,
+        port_changes
+    )
 
-generate_json_report(
-    cpu_data,
-    memory_data,
-    disk_data,
-    network_data,
-    uptime_data,
-    process_data,
-    suspicious_processes,
-    listening_ports,
-    port_findings,
-    port_changes
-)
+    generate_json_report(
+        cpu_data,
+        memory_data,
+        disk_data,
+        network_data,
+        uptime_data,
+        process_data,
+        suspicious_processes,
+        listening_ports,
+        port_findings,
+        port_changes
+    )
 
+if __name__ == "__main__":
+    main()

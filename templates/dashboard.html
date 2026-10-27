@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Endpoint Security Monitor V2</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+<body>
+
+    <h1>Endpoint Security Monitor V2</h1>
+
+    <form action="{{ url_for('generate_reports') }}" method="POST">
+    <button type="submit" class="report-button">
+    Generate TXT & JSON Reports
+</button>
+</form>
+
+<div class="metrics-grid">
+
+
+<div class="metric-card">
+    <h2>CPU</h2>
+    <p>CPU Usage: <span id="cpuUsage">{{ cpu["cpu_usage_percent"] }}%</span></p>
+
+    <p>CPU: {{ cpu["cpu_name"] }}</p>
+    <p>Physical Cores: {{ cpu["physical_cores"] }}</p>
+    <p>Logical Cores: {{ cpu["logical_cores"] }}</p>
+    {% if cpu ["warning"] %}
+        <p>Warning: {{ cpu["warning"] }}</p>
+    {% else %}
+        <p>Status: Normal</p>
+    {% endif %}
+</div>
+
+
+ <div class="metric-card">
+    <h2>Memory</h2>
+    <p>Total Ram: {{memory["total_ram_gb"] | round(2) }} GB</p>
+    <p>Used Ram: {{memory["used_ram_gb"] | round(2) }} GB</p>
+    <p>Available Ram: {{memory["available_ram_gb"] | round(2) }} GB</p>
+     <p>RAM Usage: <span id="ramUsage">{{ memory["ram_usage_percent"] }}%</span></p>
+
+    {% if memory ["warning"] %}
+        <p>Warning: {{ memory["warning"] }}</p>
+    {% else %}
+        <p>Status: Normal</p>
+    {% endif %}
+ </div>
+
+
+
+
+
+ <div class="metric-card">
+    <h2>Disk</h2>
+    <p>Total Disk Space: {{disk["total_disk_gb"] | round(2) }} GB</p>
+    <p>Used Disk Space: {{disk["used_disk_gb"] | round(2) }} GB</p>
+    <p>Available Disk Space: {{disk["available_disk_gb"] | round(2) }} GB</p>
+    <p>Disk Usage: <span id="diskUsage">{{ disk["disk_percent"] | round(2) }}%</span></p>
+
+    {% if disk ["warning"] %}
+        <p>Warning: {{ disk["warning"] }}</p>
+    {% else %}
+        <p>Status: Normal</p>
+    {% endif %}
+ </div>
+
+ <div class="metric-card">
+    <h2>Network</h2>
+    <p>IPv4 Address: {{network["ip_address"] }}</p>
+    <p>Internet Connectivity: {{network["connectivity"] }}</p>
+ </div>
+
+ <div class="metric-card">
+    <h2>Uptime</h2>
+    <p>Last Boot Time: {{ uptime["last_boot_time"].strftime("%m/%d/%Y %I:%M %p") }}</p>
+    <p>System Uptime: {{ uptime_days }} days, {{ uptime_hours }} hours, {{ uptime_minutes }} minutes</p>
+ </div>
+
+ </div>
+
+
+    <h2>Running Processes</h2>
+
+<input
+    type="text"
+    id="processSearch"
+    placeholder="Search by process name or PID..."
+>
+
+<p id="processCount"></p>
+
+
+<div class="table-container">
+    <table class="data-table" id="processTable">
+    <tr>
+        <th>PID</th>
+        <th>Process Name</th>
+        <th>Username</th>
+        <th>Executable Path</th>
+        <th>Status</th>
+    </tr>
+
+    {% for process in processes %}
+    <tr>
+        <td>{{ process["pid"] }}</td>
+        <td>{{ process["name"] }}</td>
+        <td>{{ process["username"] }}</td>
+        <td>{{ process["exe"] }}</td>
+        <td>{{ process["status"] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+</div>
+
+<h2>Suspicious Processes</h2>
+
+{% if suspicious %}
+    <p>Warning: Potentially suspicious processes detected!</p>
+
+    <div class="table-container">
+    <table class="data-table">
+        <tr>
+            <th>PID</th>
+            <th>Process Name</th>
+            <th>Executable Path</th>
+        </tr>
+
+        {% for process in suspicious %}
+        <tr>
+            <td>{{ process["pid"] }}</td>
+            <td>{{ process["name"] }}</td>
+            <td>{{ process["exe"] }}</td>
+        </tr>
+        {% endfor %}
+</table>
+        </div>
+
+{% else %}
+    <p>Status: No suspicious processes detected.</p>
+{% endif %}
+
+
+
+
+<h2>Listening Ports</h2>
+
+{% if ports %}
+    <div class="table-container">
+    <table class="data-table">
+        <tr>
+            <th>IP Address</th>
+            <th>Port</th>
+            <th>PID</th>
+            <th>Process Name</th>
+        </tr>
+
+        {% for port in ports %}
+        <tr>
+            <td>{{ port["ip"] }}</td>
+            <td>{{ port["port"] }}</td>
+            <td>{{ port["pid"] }}</td>
+            <td>{{ port["process_name"] }}</td>
+        </tr>
+        {% endfor %}
+        </table>
+    </div>
+{% else %}
+    <p>No listening ports detected.</p>
+{% endif %}
+
+
+
+<h2>Port Security Findings</h2>
+
+{% if port_findings %}
+    <div class="table-container">
+    <table class="data-table">
+        <tr>
+            <th>Port</th>
+            <th>Service</th>
+            <th>Severity</th>
+            <th>Process</th>
+            <th>Reason</th>
+            <th>Recommendation</th>
+        </tr>
+
+        {% for finding in port_findings %}
+        <tr>
+            <td>{{ finding["port"] }}</td>
+            <td>{{ finding["service"] }}</td>
+            <td>{{ finding["severity"] }}</td>
+            <td>{{ finding["process_name"] }}</td>
+            <td>{{ finding["reason"] }}</td>
+            <td>{{ finding["recommendation"] }}</td>
+        </tr>
+        {% endfor %}
+</table>
+</div>
+{% else %}
+    <p>No monitored ports requiring review were detected.</p>
+{% endif %}
+
+
+
+
+<script>
+    const searchInput = document.getElementById("processSearch");
+    const processTable = document.getElementById("processTable");
+    const processCount = document.getElementById("processCount");
+
+    const rows = Array.from(processTable.querySelectorAll("tr")).slice(1);
+    const totalProcesses = rows.length;
+
+    function filterProcesses() {
+        const searchText = searchInput.value.toLowerCase().trim();
+        let visibleProcesses = 0;
+
+        rows.forEach(function (row) {
+            const rowText = row.textContent.toLowerCase();
+            const matches = rowText.includes(searchText);
+
+            row.style.display = matches ? "" : "none";
+
+            if (matches) {
+                visibleProcesses++;
+            }
+        });
+
+        processCount.textContent =
+            `${visibleProcesses} of ${totalProcesses} processes shown`;
+    }
+
+
+const savedSearch = sessionStorage.getItem("processSearch");
+
+if (savedSearch !== null) {
+    searchInput.value = savedSearch;
+}
+
+searchInput.addEventListener("input", function () {
+    sessionStorage.setItem("processSearch", searchInput.value);
+    filterProcesses();
+});
+
+filterProcesses();
+
+
+async function updateHealthMetrics() {
+    try {
+        const response = await fetch("/api/health");
+
+        if (!response.ok) {
+            throw new Error("Failed to retrieve CPU data");
+        }
+
+        const data = await response.json();
+
+        document.getElementById("cpuUsage").textContent =
+            data.cpu.cpu_usage_percent.toFixed(1) + "%";
+        document.getElementById("ramUsage").textContent =
+            data.memory.ram_usage_percent.toFixed(1) + "%";
+        document.getElementById("diskUsage").textContent =
+            data.disk.disk_percent.toFixed(1) + "%";
+
+
+    } catch (error) {
+        console.error("CPU update failed:", error);
+    }
+}
+
+setInterval(updateHealthMetrics, 5000);
+
+
+
+</script>
+
+
+
+</body>
+</html>

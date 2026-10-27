@@ -16,3 +16,7 @@ baseline.json
 # OS-generated files
 .DS_Store
 Thumbs.db
+
+# PyInstaller generated files
+build/
+dist/
