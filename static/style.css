@@ -1,0 +1,137 @@
+
+body {
+    background-color: #101827;
+    color: #f1f5f9;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 30px;
+    line-height: 1.6;
+}
+
+h1 {
+    color: #5eead4;
+    font-size: 32px;
+    margin-bottom: 30px;
+}
+
+h2 {
+    color: #93c5fd;
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+
+p {
+    font-size: 15px;
+    margin: 8px 0;
+}
+
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.metric-card {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.metric-card h2 {
+    margin-top: 0;
+}
+
+@media (max-width: 700px) {
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    margin-bottom: 25px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 14px;
+}
+
+.data-table th {
+    background-color: #334155;
+    color: #93c5fd;
+    padding: 12px 15px;
+}
+
+.data-table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #334155;
+}
+
+.data-table tr:hover {
+    background-color: #283548;
+}
+
+
+#processSearch {
+    width: 100%;
+    max-width: 400px;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+
+    background-color: #1e293b;
+    color: #f1f5f9;
+
+    border: 1px solid #475569;
+    border-radius: 8px;
+
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+#processSearch:focus {
+    outline: none;
+    border-color: #5eead4;
+}
+
+#processCount {
+    color: #94a3b8;
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+.report-button {
+    background-color: #20c997;
+    color: #10212b;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 15px 0 25px;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.report-button:hover {
+    background-color: #17a589;
+    transform: translateY(-2px);
+}
+
+.report-button:active {
+    transform: translateY(0);
+}
+
+.report-button:focus-visible {
+    outline: 3px solid #ffffff;
+    outline-offset: 3px;
+}
